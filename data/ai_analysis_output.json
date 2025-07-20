@@ -1,0 +1,66 @@
+[
+  {
+    "opportunity_id": "comment_n2ycvjc",
+    "status": "Suitable",
+    "reason": null,
+    "conversation_theme": "Perceptions of Maturity on Dates",
+    "relevant_philosophy": "Inner Freedom Before External Skill",
+    "strategic_direction": "Encourage a discussion on how self-awareness and inner confidence can redefine common perceptions of maturity and dating rituals."
+  },
+  {
+    "opportunity_id": "comment_n39hfth",
+    "status": "Unsuitable",
+    "reason": "The comment reflects a personal safety concern and suspicion in a toxic relationship context, making it overly sensitive for engagement.",
+    "conversation_theme": null,
+    "relevant_philosophy": null,
+    "strategic_direction": null
+  },
+  {
+    "opportunity_id": "comment_n39kxh9",
+    "status": "Unsuitable",
+    "reason": "The comment trivializes a potential serious safety concern, making it insensitive and unsuitable for engagement.",
+    "conversation_theme": null,
+    "relevant_philosophy": null,
+    "strategic_direction": null
+  },
+  {
+    "opportunity_id": "comment_n3hooio",
+    "status": "Suitable",
+    "reason": null,
+    "conversation_theme": "Insecurity in Relationships",
+    "relevant_philosophy": "Redefining Modern Masculinity",
+    "strategic_direction": "Explore how embracing vulnerability and open communication can strengthen relationship bonds and self-assurance."
+  },
+  {
+    "opportunity_id": "comment_n3hou1b",
+    "status": "Unsuitable",
+    "reason": "The comment dismisses genuine feelings of insecurity, which may not provide a meaningful engagement opportunity.",
+    "conversation_theme": null,
+    "relevant_philosophy": null,
+    "strategic_direction": null
+  },
+  {
+    "opportunity_id": "post_1m0vpzd",
+    "status": "Suitable",
+    "reason": null,
+    "conversation_theme": "Challenges of Modern Dating for Men",
+    "relevant_philosophy": "Courtship is a Dance, Not a Chase",
+    "strategic_direction": "Emphasize the co-creation aspect of attraction and encourage open dialogues on navigating modern dating challenges with mutual respect."
+  },
+  {
+    "opportunity_id": "post_1m4qhmx",
+    "status": "Suitable",
+    "reason": null,
+    "conversation_theme": "Navigating Relationships with Limited Experience",
+    "relevant_philosophy": "Inner Freedom Before External Skill",
+    "strategic_direction": "Focus on developing personal confidence from within and educate on removing self-doubt while forming genuine connections in dating."
+  },
+  {
+    "opportunity_id": "post_1m43nhj",
+    "status": "Suitable",
+    "reason": null,
+    "conversation_theme": "Managing Relationship Expectations and Regrets",
+    "relevant_philosophy": "Connection Over Performance",
+    "strategic_direction": "Guide individuals to prioritize authentic connection and communication, emphasizing the importance of understanding and processing their emotions in relationships."
+  }
+]

@@ -1,0 +1,59 @@
+{
+  "search_settings": {
+    "keywords": [
+  "dating",
+  "relationship",
+  "attraction",
+  "crush",
+  "first date",
+  "rejection",
+  "lonely",
+  "breakup",
+  "ghosted",
+  "confidence",
+  "insecure",
+  "approach anxiety",
+  "hinge",
+  "bumble",
+  "tinder",
+  "dating apps",
+  "indian men",
+  "asian men",
+  "desi dating",
+  "south asian"
+    ],
+    "target_subreddits": [
+      "SouthAsianMasculinity",
+      "TooAfraidToAsk",
+      "ABCDesi",
+      "AsianMasculinity",
+      "SouthAsianDating",
+      "SouthAsianMen",
+      "DatingInIndia",
+      "nri",
+      "dating"
+    ],
+    "search_all_reddit": false,
+    "posts_per_keyword": 1,
+    "sort_method": "top",
+    "time_filter": "week"
+  },
+  "export_settings": {
+    "format": "json",
+    "custom_filename": "south_asian_dating_reddit_data.json",
+    "include_images": true,
+    "include_comments": true,
+    "max_comments_per_post": 2
+  },
+  "api_settings": {
+    "rate_limit_delay": 1.5,
+    "post_processing_delay": 0.8,
+    "max_retries": 3
+  },
+  "filter_settings": {
+    "min_score": 5,
+    "exclude_nsfw": false,
+    "exclude_deleted_posts": true,
+    "exclude_deleted_comments": true
+  }
+}
