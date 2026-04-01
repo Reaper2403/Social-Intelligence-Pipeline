@@ -1,27 +1,31 @@
-# Environment variables & secrets
+# Environment & secrets — never commit
 .env
 *.env
 
-# Python virtual environments
+# Python
 .venv/
-env1/
 venv/
 env/
+env1/
 __pycache__/
 *.py[cod]
 *.pyo
 *.pyd
 .Python
 
-# Data files (large / sensitive)
+# Pipeline runtime outputs — generated, not source-controlled
 data/master_reddit_data.json
+data/reddit_data.json
 data/ai_input_minimal.json
 data/ai_analysis_output.json
 data/processed_ids.log
 data/reported_ids.log
-data/south_asian_dating_reddit_data.json
+data/south_asian_*.json
+data/pipeline.db
+data/pipeline.db-wal
+data/pipeline.db-shm
 
-# Reports (generated output)
+# Reports — generated Word documents
 reports/*.docx
 !reports/.gitkeep
 
@@ -34,5 +38,11 @@ notebooks/.ipynb_checkpoints/
 .AppleDouble
 .LSOverride
 
-# Stray files
-*.csv
+# Pytest / coverage
+.pytest_cache/
+.coverage
+htmlcov/
+
+# IDE
+.vscode/
+.idea/

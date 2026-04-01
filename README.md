@@ -1,183 +1,324 @@
-# Reddit Engagement Analysis Pipeline
+# Social Intelligence Pipeline
 
-An automated 4-stage pipeline that scrapes Reddit discussions from South Asian dating communities, scores engagement opportunities, runs AI coaching analysis via Claude, and generates actionable Word-document briefings.
+A modular, containerised **ETL data engineering pipeline** that continuously mines Reddit for high-signal discussions, enriches them with LLM-powered analysis, and delivers structured engagement reports.
+
+Built as a **Data Engineering portfolio project** demonstrating production-grade patterns: modular ETL architecture, relational database integration, schema-migrated persistence, containerised deployment, and a comprehensive automated test suite.
 
 ---
 
-## Pipeline Diagram
+## Architecture Overview
 
 ```
-┌─────────────────────────────────────────────────────────────────────┐
-│                    REDDIT ANALYSIS PIPELINE                         │
-│                                                                     │
-│  ┌──────────┐    ┌──────────┐    ┌──────────┐    ┌──────────────┐  │
-│  │ Stage 1  │───▶│ Stage 2  │───▶│ Stage 3  │───▶│  Stage 4     │  │
-│  │  Fetch   │    │  Filter  │    │ Analyze  │    │  Report      │  │
-│  │  Reddit  │    │   & Rank │    │ (Claude) │    │ (Word Docs)  │  │
-│  └──────────┘    └──────────┘    └──────────┘    └──────────────┘  │
-│       │                │                │                │          │
-│  PRAW API        95th pct rank    tool_use JSON    .docx briefings  │
-│  + scoring       deduplication    structured out   with hyperlinks  │
-└─────────────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────┐
+│                       pipeline.py (Orchestrator)                │
+│                                                                 │
+│  Stage 1 EXTRACT    Stage 2 TRANSFORM   Stage 3 TRANSFORM       │
+│  ┌──────────────┐   ┌───────────────┐   ┌──────────────────┐   │
+│  │Reddit        │──▶│Opportunity    │──▶│AI Analyzer       │   │
+│  │Extractor     │   │Filter (P95)   │   │(Anthropic Claude)│   │
+│  │(PRAW)        │   │               │   │                  │   │
+│  └──────────────┘   └───────────────┘   └──────────────────┘   │
+│                                                  │               │
+│  Stage 4 LOAD                                    ▼               │
+│  ┌─────────────────────────────────────────────────────────┐   │
+│  │  Report Loader   │   JSON Loader   │   DB Loader        │   │
+│  │  (.docx reports) │   (data/ backup)│   (PostgreSQL/SQLite│   │
+│  └─────────────────────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────────────────────┘
 ```
+
+**Dual persistence** — every pipeline run writes to both a relational database (source of truth) and JSON files (portable backup).
 
 ---
 
 ## Tech Stack
 
-| Component | Library | Purpose |
-|-----------|---------|---------|
-| Reddit API | `praw >= 7.8.1` | Scrape posts & comments |
-| AI Analysis | `anthropic >= 0.40.0` | Claude Sonnet structured analysis |
-| Data Processing | `pandas >= 2.3.0`, `numpy >= 2.0.0` | Scoring, filtering |
-| Report Generation | `python-docx >= 1.1.0` | Word documents with hyperlinks |
-| EDA Notebook | `jupyterlab`, `seaborn`, `matplotlib`, `wordcloud` | Portfolio visualisations |
-| Environment | `python-dotenv >= 1.0.0` | API key management |
-
----
-
-## Opportunity Scoring Formula
-
-Posts and comments are ranked by a velocity-based **Opportunity Score** that rewards active, recent discussions.
-
-**Post score:**
-
-```
-OS_post = (W1 × (score × upvote_ratio) + W2 × num_comments) / (age_hours + S)
-```
-
-**Reply score:**
-
-```
-OS_reply = OS_post + (W3 × comment_score + W4 × num_replies) × (1 / (depth + 1))
-```
-
-Default weights: `W1=1.0`, `W2=1.5`, `W3=1.0`, `W4=2.0`, `S=2` (smoothing).
-Only the **top 5% (95th percentile)** of scored opportunities are forwarded to the AI stage.
-
----
-
-## AI Analysis Framework
-
-Claude analyses each opportunity against six coaching philosophies:
-
-1. **Courtship is a Dance, Not a Chase** — mutual effort and reciprocity
-2. **Emotional Honesty + Social Grace** — authentic expression within social norms
-3. **Redefining Modern Masculinity** — challenging outdated gender narratives
-4. **The Long Game** — investing in personal growth over quick wins
-5. **Cultural Intelligence** — navigating South Asian cultural expectations
-6. **Abundance Mindset** — approaching dating from a place of confidence, not scarcity
-
-Each opportunity receives: `status` (Suitable/Unsuitable), `conversation_theme`, `relevant_philosophy`, and `strategic_direction`.
+| Layer | Technology |
+|---|---|
+| Language | Python 3.11 |
+| Reddit API | PRAW (Python Reddit API Wrapper) |
+| AI Analysis | Anthropic Claude (tool_use / structured JSON output) |
+| ORM | SQLAlchemy 2.x (declarative, type-annotated models) |
+| Migrations | Alembic (auto-generated, version-controlled schema) |
+| Database | PostgreSQL 16 (prod) · SQLite (local dev) |
+| Containerisation | Docker + Docker Compose |
+| Testing | pytest (90 tests, zero external API calls) |
+| Report Generation | python-docx |
 
 ---
 
 ## Project Structure
 
 ```
-reddit-analysis-pipeline/
+.
+├── pipeline.py                    # Orchestrator & CLI entry point
+├── Dockerfile                     # python:3.11-slim image
+├── docker-compose.yml             # postgres:16 + scraper services
+├── docker/
+│   └── entrypoint.sh              # DB wait → alembic migrate → run
+├── alembic/                       # Schema migration history
+│   └── versions/
+│       └── *_initial_schema.py    # Tables: runs, posts, comments, analyses
 ├── src/
-│   ├── 1_fetch_reddit_data.py    # Stage 1: Scrape & score Reddit posts
-│   ├── 2_prepare_ai_input.py     # Stage 2: Filter top 5%, deduplicate
-│   ├── 3_get_ai_analysis.py      # Stage 3: Claude AI coaching analysis
-│   └── 4_generate_reports.py     # Stage 4: Word document reports
+│   ├── extractors/
+│   │   └── reddit_extractor.py    # PRAW client, scoring, deduplication
+│   ├── transformers/
+│   │   ├── opportunity_filter.py  # P95 score threshold, ID tracking
+│   │   └── ai_analyzer.py        # Claude API, batching, tool_use schema
+│   ├── loaders/
+│   │   ├── json_loader.py         # All file I/O in one place
+│   │   ├── db_loader.py           # Idempotent DB upserts
+│   │   └── report_loader.py       # Word document generation
+│   └── db/
+│       ├── models.py              # SQLAlchemy ORM: PipelineRun, Post, Comment, Analysis
+│       └── session.py             # Engine factory, get_session(), init_db()
+├── tests/
+│   ├── test_phase1_etl.py         # 25 ETL component tests
+│   ├── test_phase2_db.py          # 20 database layer tests
+│   └── test_phase3_docker.py      # 45 Docker config tests
 ├── data/
-│   ├── config.json               # Search settings (subreddits, keywords)
-│   └── system_prompt_final.txt   # Claude coaching system prompt
-├── notebooks/
-│   └── eda.ipynb                 # Exploratory Data Analysis (8 sections)
-├── reports/
-│   └── .gitkeep                  # Generated .docx reports go here
-├── Main_controller.py            # Interactive pipeline runner
-├── requirements.txt
-├── .env.example
-└── README.md
+│   ├── config.json                # Search configuration (subreddits, keywords)
+│   └── system_prompt_final.txt    # LLM analysis persona & instructions
+└── requirements.txt
 ```
 
 ---
 
-## Setup
+## Database Schema
+
+```
+runs          PipelineRun audit log — one row per execution
+├── posts     Scraped Reddit posts (unique by reddit_id, upserted)
+│   └── comments  Top comments per post (FK → posts, cascade delete)
+└── analyses  Claude AI results (FK via reddit_id, reported flag)
+```
+
+All writes are **idempotent upserts** — re-running never creates duplicates. Keyword lists are merged on conflict.
+
+---
+
+## Quick Start
+
+### Option A — Local (SQLite, no Docker)
+
+**Prerequisites:** Python 3.11+, Reddit API credentials, Anthropic API key.
 
 ```bash
-# 1. Clone
-git clone https://github.com/your-username/reddit-analysis-pipeline.git
-cd reddit-analysis-pipeline
-
-# 2. Create virtual environment
-python -m venv .venv
-source .venv/bin/activate        # macOS/Linux
-# .venv\Scripts\activate         # Windows
-
-# 3. Install dependencies
+# 1. Clone and set up environment
+git clone <repo-url>
+cd social-intelligence-pipeline
+python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 
-# 4. Configure credentials
+# 2. Configure credentials
 cp .env.example .env
-# Edit .env with your Reddit and Anthropic API keys
+# Edit .env with your API keys
+
+# 3. Apply database schema
+alembic upgrade head
+
+# 4. Configure your search target
+# Edit data/config.json — set subreddits, keywords, and system_prompt_final.txt persona
+
+# 5. Run the full pipeline
+python pipeline.py --yes
+
+# Outputs:
+#   data/pipeline.db              ← SQLite database
+#   data/master_reddit_data.json  ← full JSON backup
+#   reports/Report_Posts.docx     ← engagement report
+#   reports/Report_Comments.docx  ← comment opportunities
 ```
 
-**Reddit API credentials** — create an app at https://www.reddit.com/prefs/apps (script type).
-**Anthropic API key** — obtain at https://console.anthropic.com.
+### Option B — Docker (PostgreSQL, production-like)
 
----
-
-## Usage
-
-### Full pipeline (interactive menu)
+**Prerequisites:** Docker Desktop.
 
 ```bash
-python Main_controller.py
+# 1. Configure credentials
+cp .env.example .env
+# Edit .env with your API keys (DATABASE_URL is set automatically by docker-compose)
+
+# 2. Configure your search target
+# Edit data/config.json with target subreddits and keywords
+# Edit data/system_prompt_final.txt with your analysis persona
+
+# 3. Build and run everything with one command
+docker compose up --build
+
+# Container startup sequence:
+#   ✔ PostgreSQL 16 starts and passes healthcheck
+#   ✔ alembic upgrade head runs (schema created/updated)
+#   ✔ pipeline.py runs all 4 stages non-interactively
+
+# Outputs appear on your host machine:
+#   data/master_reddit_data.json  ← full scraped data
+#   reports/Report_Posts.docx     ← post opportunities
+#   reports/Report_Comments.docx  ← comment opportunities
+
+# Subsequent runs (deduplicates automatically):
+docker compose up
 ```
 
-Select a starting step (1–4). The controller checks for required input files and prompts for confirmation before making the Anthropic API call.
+---
 
-### Individual stages
+## Configuration
+
+### `data/config.json` — Search Parameters
+
+```json
+{
+  "search_settings": {
+    "keywords": ["burnout", "productivity", "time management"],
+    "target_subreddits": ["productivity", "ADHD", "cscareerquestions"],
+    "posts_per_keyword": 10,
+    "sort_method": "top",
+    "time_filter": "week"
+  },
+  "api_settings": {
+    "rate_limit_delay": 1.5,
+    "max_retries": 3
+  },
+  "filter_settings": {
+    "min_score": 20,
+    "exclude_nsfw": false
+  }
+}
+```
+
+> **Note:** When using Docker, rebuild the image after changing `config.json` or `system_prompt_final.txt`, as they are baked into the image layer: `docker compose up --build`
+
+### `data/system_prompt_final.txt` — AI Persona
+
+Defines the LLM's analysis framework. Edit this to change the strategic angle — the Claude API will classify each opportunity against the principles defined here and generate a `strategic_direction` for each suitable post.
+
+---
+
+## Running the Pipeline
+
+### CLI Options
 
 ```bash
-python src/1_fetch_reddit_data.py     # Scrape Reddit → data/master_reddit_data.json
-python src/2_prepare_ai_input.py      # Filter → data/ai_input_minimal.json
-python src/3_get_ai_analysis.py       # Analyze → data/ai_analysis_output.json
-python src/4_generate_reports.py      # Report → reports/Report_Posts.docx + Report_Comments.docx
+python pipeline.py [OPTIONS]
+
+Options:
+  --start {1,2,3,4}   Resume from a specific stage (default: 1)
+                         1 = Extract (Reddit scrape)
+                         2 = Transform (opportunity filter)
+                         3 = Transform (AI analysis)
+                         4 = Load (report generation)
+  --yes               Skip the Anthropic API cost confirmation prompt
+  --no-db             Disable database writes (JSON output only)
 ```
 
-### EDA Notebook
+### Stage-by-Stage Resumption
 
 ```bash
-jupyter lab notebooks/eda.ipynb
+# Re-run only AI analysis and report generation (skips Reddit scrape):
+python pipeline.py --start 3 --yes
+
+# Regenerate reports from existing analysis output:
+python pipeline.py --start 4
+
+# Docker equivalent:
+docker compose run scraper --start 3 --yes
 ```
 
 ---
 
-## EDA Notebook
+## Querying the Database
 
-[`notebooks/eda.ipynb`](notebooks/eda.ipynb) — 8-section analysis of the 576-post dataset:
+### PostgreSQL (Docker)
 
-| Section | Content |
-|---------|---------|
-| 1. Dataset Overview | `.describe()` table, shape, date range |
-| 2. Subreddit Distribution | Post count & mean score per subreddit |
-| 3. Keyword Analysis | Top 15 keywords + word cloud |
-| 4. Engagement Metrics | Score, upvote ratio, comments, age distributions |
-| 5. Opportunity Score Analysis | Histogram, scatter plots, threshold line |
-| 6. Temporal Patterns | Weekly volume + day-of-week bar chart |
-| 7. AI Analysis Results | Suitable/Unsuitable pie + philosophy bar chart |
-| 8. Key Findings | Summary table + 5 written insights |
+```bash
+docker exec -it pipeline_db psql -U pipeline_user -d pipeline_db
+```
+
+```sql
+-- Run history
+SELECT id, status, started_at, new_posts, analyses_completed
+FROM runs ORDER BY id DESC;
+
+-- Top posts by opportunity score
+SELECT reddit_id, subreddit, title, opportunity_score
+FROM posts ORDER BY opportunity_score DESC LIMIT 10;
+
+-- Suitable, unreported analyses
+SELECT opportunity_id, conversation_theme, strategic_direction
+FROM analyses
+WHERE status = 'Suitable' AND reported = false;
+
+-- Summary
+SELECT
+  (SELECT COUNT(*) FROM runs)     AS total_runs,
+  (SELECT COUNT(*) FROM posts)    AS total_posts,
+  (SELECT COUNT(*) FROM comments) AS total_comments,
+  (SELECT COUNT(*) FROM analyses) AS total_analyses;
+```
+
+### SQLite (Local)
+
+Connect with [DB Browser for SQLite](https://sqlitebrowser.org/) — open `data/pipeline.db`.
+
+### Switch to External PostgreSQL
+
+Set `DATABASE_URL` in `.env`:
+```
+DATABASE_URL=postgresql://user:password@host:5432/dbname
+```
+No code changes required — Alembic and SQLAlchemy handle the rest.
 
 ---
 
-## Results Summary
+## Environment Variables
 
-| Metric | Value |
-|--------|-------|
-| Total posts collected | 576 |
-| Subreddits covered | SouthAsianMasculinity, SouthAsians, datingadvice, and others |
-| Opportunities sent to AI (top 5%) | ~29 post + comment opportunities per run |
-| AI model | Claude Sonnet (`claude-sonnet-4-6`) |
-| Structured output method | `tool_use` with forced tool call (no JSON parsing) |
-| Report format | Word (.docx) with clickable Reddit hyperlinks |
+| Variable | Required | Description |
+|---|---|---|
+| `REDDIT_CLIENT_ID` | ✅ | Reddit API app client ID |
+| `REDDIT_CLIENT_SECRET` | ✅ | Reddit API app client secret |
+| `REDDIT_USER_AGENT` | ✅ | PRAW user agent string |
+| `ANTHROPIC_API_KEY` | ✅ | Claude API key |
+| `DATABASE_URL` | ❌ | Database connection string (defaults to SQLite) |
+| `PIPELINE_CONFIG_DIR` | ❌ | Path to static config files (set automatically in Docker) |
 
 ---
 
-## License
+## Testing
 
-MIT License — see [LICENSE](LICENSE) for details.
+```bash
+# Full test suite — 90 tests, ~2 seconds, no external API calls
+python -m pytest tests/ -v
+
+# Run specific phase tests
+python -m pytest tests/test_phase1_etl.py -v   # ETL component logic
+python -m pytest tests/test_phase2_db.py -v    # Database layer
+python -m pytest tests/test_phase3_docker.py -v # Docker config validation
+```
+
+Tests use:
+- **In-memory SQLite** for all database tests (no file system side effects)
+- **`unittest.mock`** to intercept all Anthropic API calls
+- **`tmp_path`** for all file system tests
+
+---
+
+## Getting Reddit API Credentials
+
+1. Go to [reddit.com/prefs/apps](https://www.reddit.com/prefs/apps)
+2. Click **"create another app..."**
+3. Select **"script"** type
+4. Set redirect URI to `http://localhost:8080`
+5. Copy the **client ID** (under app name) and **client secret**
+
+---
+
+## Roadmap
+
+| Phase | Status | Description |
+|---|---|---|
+| Phase 1 — Modular ETL | ✅ Complete | Extractor, Transformer, Loader classes + test suite |
+| Phase 2 — Database Integration | ✅ Complete | SQLAlchemy ORM, Alembic migrations, dual persistence |
+| Phase 3 — Containerisation | ✅ Complete | Dockerfile, docker-compose, entrypoint, healthchecks |
+| Phase 4 — Orchestration | 🔜 Planned | Apache Airflow / Prefect DAG for scheduled runs |
+| Phase 5 — Observability | 🔜 Planned | Structured logging, metrics, run dashboard |
+| Phase 6 — API + UI | 🔜 Planned | FastAPI backend + Streamlit dashboard |

@@ -1,49 +1,21 @@
 {
   "search_settings": {
     "keywords": [
-  "dating",
-  "relationship",
-  "attraction",
-  "interracial dating",
-  "first date",
-  "rejection",
-  "lonely",
-  "breakup",
-  "ghosted",
-  "confidence",
-  "how",
-  "dating struggle",
-  "flirt",
-  "deal breaker",
-  "situationship"
-
+      "time management",
+      "productivity",
+      "burnout"
     ],
     "target_subreddits": [
-      "SouthAsianMasculinity",
-      "TooAfraidToAsk",
-      "ABCDesi",
-      "india",
-      "SouthAsianDating",
-      "SouthAsianMen",
-      "DatingInIndia",
-      "nri",
-      "dating",
-      "seduction",
-      "datingoverthirty",
-      "Bangkok",
-      "asksingapore",
-      "UAE",
-      "OnlineDatingApps",
-      "datingoverthirty"
+      "productivity"
     ],
     "search_all_reddit": false,
-    "posts_per_keyword": 2,
+    "posts_per_keyword": 10,
     "sort_method": "top",
-    "time_filter": "week"
+    "time_filter": "month"
   },
   "export_settings": {
     "format": "json",
-    "custom_filename": "south_asian_dating_reddit_data.json",
+    "custom_filename": "reddit_data.json",
     "include_images": true,
     "include_comments": true,
     "max_comments_per_post": 2

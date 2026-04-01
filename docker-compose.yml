@@ -1,0 +1,62 @@
+# ============================================================
+# Social Engineering Research Pipeline — Docker Compose
+# Phase 3: Containerization
+#
+# Usage (modern Docker Desktop uses 'docker compose' with a space):
+#   docker compose up          # run the full pipeline once
+#   docker compose up --build  # rebuild image first
+#   docker compose run scraper --start 3 --yes   # start from stage 3
+#
+# Legacy syntax (older installs only):
+#   docker-compose up --build
+# ============================================================
+
+services:
+
+  # ── PostgreSQL Database ────────────────────────────────────
+  db:
+    image: postgres:16-alpine
+    container_name: pipeline_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: pipeline_user
+      POSTGRES_PASSWORD: pipeline_pass
+      POSTGRES_DB: pipeline_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432" # expose for local tools (DBeaver, psql, etc.)
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U pipeline_user -d pipeline_db" ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  # ── Pipeline Scraper ───────────────────────────────────────
+  scraper:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: pipeline_scraper
+    depends_on:
+      db:
+        condition: service_healthy # only start when Postgres is ready
+    env_file:
+      - .env
+    environment:
+      # Override DATABASE_URL to use the compose service name "db"
+      DATABASE_URL: postgresql://pipeline_user:pipeline_pass@db:5432/pipeline_db
+      # Read static config from the image layer (/app/config/), NOT the mounted
+      # ./data volume. This prevents macOS VirtioFS EDEADLK read errors.
+      PIPELINE_CONFIG_DIR: /app/config
+    volumes:
+      # Mount host directories so outputs are accessible after the container exits
+      - ./data:/app/data
+      - ./reports:/app/reports
+    # Default: full pipeline run, non-interactive
+    command: [ "--yes" ]
+
+volumes:
+  postgres_data:
+    driver: local
