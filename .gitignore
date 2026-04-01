@@ -1,0 +1,38 @@
+# Environment variables & secrets
+.env
+*.env
+
+# Python virtual environments
+.venv/
+env1/
+venv/
+env/
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+
+# Data files (large / sensitive)
+data/master_reddit_data.json
+data/ai_input_minimal.json
+data/ai_analysis_output.json
+data/processed_ids.log
+data/reported_ids.log
+data/south_asian_dating_reddit_data.json
+
+# Reports (generated output)
+reports/*.docx
+!reports/.gitkeep
+
+# Jupyter
+notebooks/.ipynb_checkpoints/
+.ipynb_checkpoints/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Stray files
+*.csv

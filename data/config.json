@@ -4,37 +4,40 @@
   "dating",
   "relationship",
   "attraction",
-  "crush",
+  "interracial dating",
   "first date",
   "rejection",
   "lonely",
   "breakup",
   "ghosted",
   "confidence",
-  "insecure",
-  "approach anxiety",
-  "hinge",
-  "bumble",
-  "tinder",
-  "dating apps",
-  "indian men",
-  "asian men",
-  "desi dating",
-  "south asian"
+  "how",
+  "dating struggle",
+  "flirt",
+  "deal breaker",
+  "situationship"
+
     ],
     "target_subreddits": [
       "SouthAsianMasculinity",
       "TooAfraidToAsk",
       "ABCDesi",
-      "AsianMasculinity",
+      "india",
       "SouthAsianDating",
       "SouthAsianMen",
       "DatingInIndia",
       "nri",
-      "dating"
+      "dating",
+      "seduction",
+      "datingoverthirty",
+      "Bangkok",
+      "asksingapore",
+      "UAE",
+      "OnlineDatingApps",
+      "datingoverthirty"
     ],
     "search_all_reddit": false,
-    "posts_per_keyword": 1,
+    "posts_per_keyword": 2,
     "sort_method": "top",
     "time_filter": "week"
   },
@@ -51,7 +54,7 @@
     "max_retries": 3
   },
   "filter_settings": {
-    "min_score": 5,
+    "min_score": 20,
     "exclude_nsfw": false,
     "exclude_deleted_posts": true,
     "exclude_deleted_comments": true

@@ -1,66 +1,170 @@
 [
   {
-    "opportunity_id": "comment_n2ycvjc",
+    "opportunity_id": "post_1m93dlp",
     "status": "Suitable",
     "reason": null,
-    "conversation_theme": "Perceptions of Maturity on Dates",
-    "relevant_philosophy": "Inner Freedom Before External Skill",
-    "strategic_direction": "Encourage a discussion on how self-awareness and inner confidence can redefine common perceptions of maturity and dating rituals."
-  },
-  {
-    "opportunity_id": "comment_n39hfth",
-    "status": "Unsuitable",
-    "reason": "The comment reflects a personal safety concern and suspicion in a toxic relationship context, making it overly sensitive for engagement.",
-    "conversation_theme": null,
-    "relevant_philosophy": null,
-    "strategic_direction": null
-  },
-  {
-    "opportunity_id": "comment_n39kxh9",
-    "status": "Unsuitable",
-    "reason": "The comment trivializes a potential serious safety concern, making it insensitive and unsuitable for engagement.",
-    "conversation_theme": null,
-    "relevant_philosophy": null,
-    "strategic_direction": null
-  },
-  {
-    "opportunity_id": "comment_n3hooio",
-    "status": "Suitable",
-    "reason": null,
-    "conversation_theme": "Insecurity in Relationships",
-    "relevant_philosophy": "Redefining Modern Masculinity",
-    "strategic_direction": "Explore how embracing vulnerability and open communication can strengthen relationship bonds and self-assurance."
-  },
-  {
-    "opportunity_id": "comment_n3hou1b",
-    "status": "Unsuitable",
-    "reason": "The comment dismisses genuine feelings of insecurity, which may not provide a meaningful engagement opportunity.",
-    "conversation_theme": null,
-    "relevant_philosophy": null,
-    "strategic_direction": null
-  },
-  {
-    "opportunity_id": "post_1m0vpzd",
-    "status": "Suitable",
-    "reason": null,
-    "conversation_theme": "Challenges of Modern Dating for Men",
+    "conversation_theme": "Exploring friendships and emotional dynamics between genders",
     "relevant_philosophy": "Courtship is a Dance, Not a Chase",
-    "strategic_direction": "Emphasize the co-creation aspect of attraction and encourage open dialogues on navigating modern dating challenges with mutual respect."
+    "strategic_direction": "Engage in discussions about how friendships are maintained without romantic involvement and highlight the mutual dance of connection and respect in relationships."
   },
   {
-    "opportunity_id": "post_1m4qhmx",
+    "opportunity_id": "comment_n540a85",
     "status": "Suitable",
     "reason": null,
-    "conversation_theme": "Navigating Relationships with Limited Experience",
-    "relevant_philosophy": "Inner Freedom Before External Skill",
-    "strategic_direction": "Focus on developing personal confidence from within and educate on removing self-doubt while forming genuine connections in dating."
+    "conversation_theme": "Balancing friendship and romantic interest",
+    "relevant_philosophy": "Emotional Honesty + Social Grace",
+    "strategic_direction": "Foster understanding of how to express and navigate feelings honestly without damaging friendships, emphasizing the importance of social nuance in friendships."
   },
   {
-    "opportunity_id": "post_1m43nhj",
+    "opportunity_id": "comment_n5408eb",
     "status": "Suitable",
     "reason": null,
-    "conversation_theme": "Managing Relationship Expectations and Regrets",
+    "conversation_theme": "Cultural and personal narratives influencing friendship and romance",
+    "relevant_philosophy": "Redefining Modern Masculinity",
+    "strategic_direction": "Discuss the influence of societal expectations on male and female friendships and the evolving dynamics of how men and women perceive and pursue relationships."
+  },
+  {
+    "opportunity_id": "post_1mc4sxo",
+    "status": "Unsuitable",
+    "reason": "Irrelevant to coaching philosophies and lacks depth in personal growth and relationship dynamics.",
+    "conversation_theme": null,
+    "relevant_philosophy": null,
+    "strategic_direction": null
+  },
+  {
+    "opportunity_id": "post_1mbge1b",
+    "status": "Suitable",
+    "reason": null,
+    "conversation_theme": "Age differences in relationships and societal perceptions",
     "relevant_philosophy": "Connection Over Performance",
-    "strategic_direction": "Guide individuals to prioritize authentic connection and communication, emphasizing the importance of understanding and processing their emotions in relationships."
+    "strategic_direction": "Explore the dynamics of age differences in relationships, focusing on authenticity and genuine connection rather than societal expectations."
+  },
+  {
+    "opportunity_id": "post_1maw0sv",
+    "status": "Suitable",
+    "reason": null,
+    "conversation_theme": "The challenges of finding partners who respect personal boundaries and values in dating.",
+    "relevant_philosophy": "Courtship is a Dance, Not a Chase",
+    "strategic_direction": "Encourage discussions about how individuals can navigate dating with a focus on mutual respect and patience, emphasizing non-aggressive approaches to building connections."
+  },
+  {
+    "opportunity_id": "post_1m774d2",
+    "status": "Unsuitable",
+    "reason": "The post focuses on nostalgic social activities which lack substantial relevance to the coaching philosophies.",
+    "conversation_theme": null,
+    "relevant_philosophy": null,
+    "strategic_direction": null
+  },
+  {
+    "opportunity_id": "post_1mboegu",
+    "status": "Suitable",
+    "reason": null,
+    "conversation_theme": "Navigating feelings of inadequacy in modern dating landscapes.",
+    "relevant_philosophy": "Inner Freedom Before External Skill",
+    "strategic_direction": "Promote the idea of developing inner confidence and self-awareness as the foundation for successful interactions, rather than solely focusing on external validation and perceptions."
+  },
+  {
+    "opportunity_id": "comment_n5no8b8",
+    "status": "Unsuitable",
+    "reason": "The comment request for screenshots and is more reactive in nature, lacking depth for constructive engagement.",
+    "conversation_theme": null,
+    "relevant_philosophy": null,
+    "strategic_direction": null
+  },
+  {
+    "opportunity_id": "post_1m9un1c",
+    "status": "Unsuitable",
+    "reason": "The discussion is excessively toxic and revolves around illegal and morally reprehensible activities.",
+    "conversation_theme": null,
+    "relevant_philosophy": null,
+    "strategic_direction": null
+  },
+  {
+    "opportunity_id": "comment_n59rly9",
+    "status": "Unsuitable",
+    "reason": "The content is excessively toxic, focusing on a highly volatile and inappropriate topic that does not align with the core philosophies.",
+    "conversation_theme": null,
+    "relevant_philosophy": null,
+    "strategic_direction": null
+  },
+  {
+    "opportunity_id": "post_1maxi94",
+    "status": "Suitable",
+    "reason": null,
+    "conversation_theme": "Heartbreak and self-esteem in modern relationships",
+    "relevant_philosophy": "Inner Freedom Before External Skill",
+    "strategic_direction": "Encourage the individual to focus on self-growth and self-worth independently of relationship status, emphasizing inner development before external validation."
+  },
+  {
+    "opportunity_id": "post_1mbaitw",
+    "status": "Unsuitable",
+    "reason": "Focuses on administrative and procedural issues rather than personal development or relational themes.",
+    "conversation_theme": null,
+    "relevant_philosophy": null,
+    "strategic_direction": null
+  },
+  {
+    "opportunity_id": "post_1maozya",
+    "status": "Unsuitable",
+    "reason": "Discussion about staffing and hiring practices is administrative and lacks alignment with personal development philosophies.",
+    "conversation_theme": null,
+    "relevant_philosophy": null,
+    "strategic_direction": null
+  },
+  {
+    "opportunity_id": "comment_n5g3k5a",
+    "status": "Unsuitable",
+    "reason": "The comment focuses on economic strategies by employers, which is irrelevant to core philosophical discussions.",
+    "conversation_theme": null,
+    "relevant_philosophy": null,
+    "strategic_direction": null
+  },
+  {
+    "opportunity_id": "post_1mb6r1g",
+    "status": "Suitable",
+    "reason": null,
+    "conversation_theme": "The Pressure of Conforming to Dating Norms",
+    "relevant_philosophy": "Connection Over Performance",
+    "strategic_direction": "Emphasize the importance of genuine connection over adhering to arbitrary dating rules. Encourage open discussions about dating pressures and how being true to oneself can foster authentic relationships."
+  },
+  {
+    "opportunity_id": "post_1mbz340",
+    "status": "Suitable",
+    "reason": null,
+    "conversation_theme": "Honesty in Romantic Interactions",
+    "relevant_philosophy": "Emotional Honesty + Social Grace",
+    "strategic_direction": "Promote discussions on the need for honest communication early in dating to prevent misunderstandings and foster respectful interactions in relationships."
+  },
+  {
+    "opportunity_id": "post_1mbrfxr",
+    "status": "Unsuitable",
+    "reason": "The topic is related to political ideology debates and lacks relevance to core coaching philosophies.",
+    "conversation_theme": null,
+    "relevant_philosophy": null,
+    "strategic_direction": null
+  },
+  {
+    "opportunity_id": "post_1mb6wu6",
+    "status": "Unsuitable",
+    "reason": "The topic is about a criminal incident regarding surrogacy; it does not align with coaching philosophies.",
+    "conversation_theme": null,
+    "relevant_philosophy": null,
+    "strategic_direction": null
+  },
+  {
+    "opportunity_id": "post_1m9q6i4",
+    "status": "Unsuitable",
+    "reason": "The post is about administrative incompetence and crony capitalism, which are not relevant to coaching philosophies.",
+    "conversation_theme": null,
+    "relevant_philosophy": null,
+    "strategic_direction": null
+  },
+  {
+    "opportunity_id": "post_1m9t8n0",
+    "status": "Unsuitable",
+    "reason": "The topic is largely exploratory about car ownership and income levels in Singapore, lacking depth in areas concerning coaching philosophies or personal development.",
+    "conversation_theme": null,
+    "relevant_philosophy": null,
+    "strategic_direction": null
   }
 ]

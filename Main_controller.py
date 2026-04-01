@@ -65,7 +65,7 @@ def main():
 
     # --- MODIFIED: Check if necessary input files exist for the chosen step ---
     required_files = {
-        2: os.path.join(DATA_DIR, "south_asian_dating_reddit_data.json"),
+        2: os.path.join(DATA_DIR, "master_reddit_data.json"),
         3: os.path.join(DATA_DIR, "ai_input_minimal.json"),
         4: os.path.join(DATA_DIR, "ai_analysis_output.json")
     }
@@ -79,12 +79,12 @@ def main():
     # --- END OF MODIFICATIONS ---
 
     for script in scripts_to_run:
-        # The crucial confirmation step before the OpenAI call
+        # The crucial confirmation step before the Anthropic API call
         if script == "3_get_ai_analysis.py":
             print("---------------------------------------------")
-            print("  !! PENDING ACTION: OPENAI API CALL !!")
+            print("  !! PENDING ACTION: ANTHROPIC API CALL !!")
             print("---------------------------------------------")
-            print("The next step will make a call to the OpenAI API, which will incur costs.")
+            print("The next step will make a call to the Anthropic API, which will incur costs.")
             
             # Check if there's anything to process
             input_file_path = os.path.join(DATA_DIR, "ai_input_minimal.json")
@@ -93,7 +93,7 @@ def main():
                     data = json.load(f)
                 if not data:
                     print("The input file 'ai_input_minimal.json' is empty. No new opportunities to analyze.")
-                    print("Skipping OpenAI call and subsequent steps.")
+                    print("Skipping Anthropic API call and subsequent steps.")
                     break # Exit the loop
             except (FileNotFoundError, json.JSONDecodeError):
                  print(f"Warning: Could not read '{input_file_path}'. Assuming no data to process.")

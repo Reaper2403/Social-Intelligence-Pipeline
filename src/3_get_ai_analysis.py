@@ -1,127 +1,159 @@
-import os
+"""
+Stage 3: AI Opportunity Analysis
+---------------------------------
+Sends batched Reddit engagement opportunities to Claude for structured analysis.
+Uses tool_use with a forced tool call to guarantee schema-compliant JSON output —
+no fragile string parsing required.
+
+Inputs:  data/ai_input_minimal.json, data/system_prompt_final.txt, .env (ANTHROPIC_API_KEY)
+Outputs: data/ai_analysis_output.json
+
+Usage:
+    python src/3_get_ai_analysis.py
+"""
+
 import json
+import logging
 import time
-from openai import OpenAI
+from pathlib import Path
+
+import anthropic
+from anthropic import APIConnectionError, RateLimitError, APIStatusError
 from dotenv import load_dotenv
+
 load_dotenv()
 
-# --- MODIFIED: Define the data directory ---
-DATA_DIR = "data"
+logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
+logger = logging.getLogger(__name__)
 
-# --- Configuration ---
-API_KEY = os.getenv("OPENAI_API_KEY", "YOUR_OPENAI_API_KEY_HERE")
-MODEL_NAME = "gpt-4o"
+# --- Data directory relative to this script's location ---
+DATA_DIR = Path(__file__).parent.parent / "data"
 
-# --- SAFER BATCHING ---
+MODEL_NAME = "claude-sonnet-4-6"
 BATCH_SIZE = 5
-DELAY_BETWEEN_REQUESTS = 5 
+DELAY_BETWEEN_REQUESTS = 5
 
-# --- MODIFIED: Construct full paths for all files ---
-SYSTEM_PROMPT_FILE = os.path.join(DATA_DIR, "system_prompt_final.txt")
-INPUT_DATA_FILE = os.path.join(DATA_DIR, "ai_input_minimal.json")
-OUTPUT_FILE = os.path.join(DATA_DIR, "ai_analysis_output.json")
+SYSTEM_PROMPT_FILE = DATA_DIR / "system_prompt_final.txt"
+INPUT_DATA_FILE = DATA_DIR / "ai_input_minimal.json"
+OUTPUT_FILE = DATA_DIR / "ai_analysis_output.json"
 
-
-# --- JSON SCHEMA DEFINITION ---
-# This schema is our "blueprint" for the AI's response.
-JSON_SCHEMA = {
-    "type": "object",
-    "properties": {
-        "analyses": {
-            "type": "array",
-            "items": {
-                "type": "object",
-                "properties": {
-                    "opportunity_id": {"type": "string"},
-                    "status": {"type": "string", "enum": ["Suitable", "Unsuitable"]},
-                    "reason": {"type": ["string", "null"]},
-                    "conversation_theme": {"type": ["string", "null"]},
-                    "relevant_philosophy": {"type": ["string", "null"]},
-                    "strategic_direction": {"type": ["string", "null"]}
-                },
-                "required": ["opportunity_id", "status", "reason", "conversation_theme", "relevant_philosophy", "strategic_direction"]
+# --- Tool definition: schema matches the original pipeline JSON_SCHEMA exactly ---
+ANALYSIS_TOOL = {
+    "name": "submit_opportunity_analyses",
+    "description": (
+        "Submit structured analyses for a batch of Reddit engagement opportunities. "
+        "Call this tool once with all analyses for the provided batch."
+    ),
+    "input_schema": {
+        "type": "object",
+        "properties": {
+            "analyses": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "opportunity_id":    {"type": "string"},
+                        "status":            {"type": "string", "enum": ["Suitable", "Unsuitable"]},
+                        "reason":            {"type": ["string", "null"]},
+                        "conversation_theme":{"type": ["string", "null"]},
+                        "relevant_philosophy":{"type": ["string", "null"]},
+                        "strategic_direction":{"type": ["string", "null"]}
+                    },
+                    "required": [
+                        "opportunity_id", "status", "reason",
+                        "conversation_theme", "relevant_philosophy", "strategic_direction"
+                    ]
+                }
             }
-        }
-    },
-    "required": ["analyses"]
+        },
+        "required": ["analyses"]
+    }
 }
 
-def run_ai_analysis():
-    print("--- Starting OpenAI Analysis (Schema Enforced Mode) ---")
 
-    if not API_KEY or API_KEY == "YOUR_OPENAI_API_KEY_HERE":
-        print("ERROR: OpenAI API key not found.")
-        return
-    client = OpenAI(api_key=API_KEY)
+def run_ai_analysis():
+    logger.info("Starting Claude Analysis (Tool-Enforced Structured Output)")
+
+    client = anthropic.Anthropic()  # reads ANTHROPIC_API_KEY from env automatically
 
     try:
         with open(SYSTEM_PROMPT_FILE, 'r', encoding='utf-8') as f:
             system_prompt = f.read()
         with open(INPUT_DATA_FILE, 'r', encoding='utf-8') as f:
             all_opportunities = json.load(f)
-        print(f"Successfully loaded {len(all_opportunities)} opportunities.")
+        logger.info(f"Loaded {len(all_opportunities)} opportunities.")
     except (FileNotFoundError, json.JSONDecodeError) as e:
-        print(f"ERROR: Could not load required files. Details: {e}")
+        logger.error(f"Could not load required files: {e}")
         return
 
-    batches = [all_opportunities[i:i + BATCH_SIZE] for i in range(0, len(all_opportunities), BATCH_SIZE)]
-    print(f"Data split into {len(batches)} batches of up to {BATCH_SIZE} items each.")
-    
+    batches = [
+        all_opportunities[i:i + BATCH_SIZE]
+        for i in range(0, len(all_opportunities), BATCH_SIZE)
+    ]
+    logger.info(f"Split into {len(batches)} batches of up to {BATCH_SIZE} items each.")
+
     all_analyses = []
 
     for i, batch in enumerate(batches):
-        print(f"\nProcessing Batch {i + 1} of {len(batches)}...")
-        
-        # We construct a user message that contains the schema and the data
-        user_content_payload = {
-            "instructions": "Analyze the data_batch provided and return the output in a JSON object strictly following the json_schema.",
-            "json_schema": JSON_SCHEMA,
+        logger.info(f"Processing Batch {i + 1} of {len(batches)}...")
+
+        user_content = json.dumps({
+            "instructions": (
+                "Analyze the data_batch provided and call the "
+                "'submit_opportunity_analyses' tool with your results."
+            ),
             "data_batch": batch
-        }
-        # The user content sent to the API is a string
-        user_content = json.dumps(user_content_payload)
+        })
 
         try:
-            completion = client.chat.completions.create(
+            response = client.messages.create(
                 model=MODEL_NAME,
-                response_format={"type": "json_object"}, 
-                messages=[
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": user_content}
-                ]
+                max_tokens=4096,
+                system=system_prompt,
+                tools=[ANALYSIS_TOOL],
+                tool_choice={"type": "tool", "name": "submit_opportunity_analyses"},
+                messages=[{"role": "user", "content": user_content}]
             )
-            response_content_str = completion.choices[0].message.content
-            
-            parsed_response = json.loads(response_content_str)
-            json_array = parsed_response.get("analyses")
 
+            # Extract the tool_use block — input is already a Python dict, no json.loads needed
+            tool_use_block = next(
+                (b for b in response.content if b.type == "tool_use"),
+                None
+            )
+            if tool_use_block is None:
+                raise ValueError("No tool_use block found in response.")
+
+            json_array = tool_use_block.input.get("analyses")
             if json_array is None or not isinstance(json_array, list):
-                raise ValueError("AI response did not contain the expected 'analyses' array.")
+                raise ValueError("Tool input did not contain an 'analyses' array.")
 
             all_analyses.extend(json_array)
-            print(f"Batch {i + 1} successfully processed. Received {len(json_array)} analyses.")
+            logger.info(f"Batch {i + 1} complete — received {len(json_array)} analyses.")
 
-        except Exception as e:
-            print(f"An error occurred during API call or parsing for Batch {i + 1}: {e}")
-            if 'response_content_str' in locals():
-                print("\n--- RAW AI RESPONSE (FOR DEBUGGING) ---")
-                print(response_content_str)
-                print("-----------------------------------------\n")
-            print("Skipping this batch.")
+        except RateLimitError as e:
+            logger.error(f"Rate limit hit on Batch {i + 1}: {e}. Skipping.")
+            continue
+        except APIConnectionError as e:
+            logger.error(f"Connection error on Batch {i + 1}: {e}. Skipping.")
+            continue
+        except APIStatusError as e:
+            logger.error(f"API status error {e.status_code} on Batch {i + 1}: {e.message}. Skipping.")
+            continue
+        except (ValueError, KeyError) as e:
+            logger.error(f"Parsing error on Batch {i + 1}: {e}. Skipping.")
             continue
 
         if i < len(batches) - 1:
-            print(f"Waiting for {DELAY_BETWEEN_REQUESTS} seconds...")
+            logger.info(f"Waiting {DELAY_BETWEEN_REQUESTS}s before next batch...")
             time.sleep(DELAY_BETWEEN_REQUESTS)
 
     if all_analyses:
         with open(OUTPUT_FILE, 'w', encoding='utf-8') as f:
             json.dump(all_analyses, f, indent=2)
-        print(f"\n--- Analysis Complete ---")
-        print(f"Successfully saved {len(all_analyses)} total analyses to '{OUTPUT_FILE}'.")
+        logger.info(f"Analysis complete. Saved {len(all_analyses)} analyses to '{OUTPUT_FILE}'.")
     else:
-        print("\n--- Analysis Failed ---")
-        print("No analyses were successfully completed.")
+        logger.error("Analysis failed — no analyses were successfully completed.")
+
 
 if __name__ == "__main__":
     run_ai_analysis()
