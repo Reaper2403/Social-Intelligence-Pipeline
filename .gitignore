@@ -1,6 +1,7 @@
 # Environment & secrets — never commit
 .env
 *.env
+incremental_pipeline_plan.md.resolved
 
 # Python
 .venv/
