@@ -1,0 +1,79 @@
+# Incremental Data Engineering Pipeline Plan
+
+This roadmap is designed to guide you through transforming your Reddit script into an enterprise-grade, plug-and-play social engineering research tool. Each phase is designed to be **fully functional and standalone**, meaning you can stop after any phase and still have a working upgrade. It incrementally introduces new data engineering tools, drastically enhancing the project's quality for a Data Science Master's portfolio.
+
+---
+
+## Phase 1: Modular ETL Refactoring
+**Goal:** Decouple extraction, transformation, and loading logic so the pipeline isn't a monolith. 
+**Why:** Makes the code testable, maintainable, and allows easy addition of new data sources (like Twitter or News APIs).
+
+**Tasks:**
+1.  **Extractors (`src/extractors/`):** Move Reddit API calls into a `RedditExtractor` class. It should take the [config.json](file:///Users/ashutoshchatterjee/Documents/Projects/Reddit%20Projects/data/config.json) and output raw data dictionaries.
+2.  **Transformers (`src/transformers/`):** Create classes like `TextCleaner` or `AIAnalyzer` that take raw data and return processed/enriched data (running the LLM classification, parsing tags, etc.).
+3.  **Loaders (`src/loaders/`):** Create a `JSONLoader` to handle reading/writing to `processed_ids.log` and `ai_analysis_output.json`.
+4.  **Controller:** Update [Main_controller.py](file:///Users/ashutoshchatterjee/Documents/Projects/Reddit%20Projects/Main_controller.py) to be a dumb "runner" that strings these classes together.
+
+**Standalone State:** You still run `python Main_controller.py` and it still outputs JSONs. But internally, the codebase is deeply modular.
+**Skills Showcased:** Object-Oriented Programming (OOP), Software Design Patterns (ETL), Separation of Concerns.
+
+---
+
+## Phase 2: Database Integration
+**Goal:** Stop relying on local [.json](file:///Users/ashutoshchatterjee/Documents/Projects/Reddit%20Projects/data/config.json) and `.log` files for data storage.
+**Why:** Flat files don't scale, are prone to corruption, and can't be easily queried. A database allows complex analytics.
+
+**Tasks:**
+1.  **Choose a DB:** PostgreSQL (Relational) is standard for structured ML outputs. MongoDB (Document) is great for raw API payloads. (You can start with a local SQLite file to build the logic before jumping to Postgres).
+2.  **ORM Setup:** Use `SQLAlchemy` (Python library) to define tables for `Posts`, `Comments`, and `AnalysisResults`.
+3.  **New Loader:** Create a `PostgresLoader` (or `MongoLoader`) in your `loaders/` directory.
+4.  **Swap:** Tell [Main_controller.py](file:///Users/ashutoshchatterjee/Documents/Projects/Reddit%20Projects/Main_controller.py) to use the `PostgresLoader` instead of the `JSONLoader`. 
+
+**Standalone State:** Running the script now scrapes Reddit, processes via AI, and writes directly into your database. You can query `SELECT * FROM posts WHERE sentiment = 'negative'`.
+**Skills Showcased:** Database Administration, SQL, Data Modeling, ORM (SQLAlchemy).
+
+---
+
+## Phase 3: Containerization (Docker)
+**Goal:** Guarantee the app runs perfectly on any computer ("It works on my machine" → "It works everywhere").
+**Why:** Deployability. A researcher can just download it and run it without installing Python or dependencies.
+
+**Tasks:**
+1.  **Dockerfile:** Write a `Dockerfile` that packages your Python app, installs [requirements.txt](file:///Users/ashutoshchatterjee/Documents/Projects/Reddit%20Projects/requirements.txt), and sets the entry point to run [Main_controller.py](file:///Users/ashutoshchatterjee/Documents/Projects/Reddit%20Projects/Main_controller.py).
+2.  **Docker Compose:** Write a `docker-compose.yml` that defines two services:
+    *   `db`: Your PostgreSQL database container.
+    *   `scraper`: Your Python application container.
+
+**Standalone State:** A user clones your git repo and runs `docker-compose up`. Docker builds the database, builds your Python app, runs the pipeline, stores data in the DB container, and shuts down gracefully.
+**Skills Showcased:** Containerization, Docker, Docker-Compose, Infrastructure-as-Code.
+
+---
+
+## Phase 4: Orchestration (Airflow)
+**Goal:** Automate the pipeline to run on a schedule, handle retries, and monitor failures.
+**Why:** Enterprise pipelines don't rely on humans running scripts or manual `cron` jobs. 
+
+**Tasks:**
+1.  **Introduce Orchestrator:** Add **Apache Airflow** or **Prefect**.
+2.  **Turn Script into DAG:** Convert [Main_controller.py](file:///Users/ashutoshchatterjee/Documents/Projects/Reddit%20Projects/Main_controller.py) into an Airflow DAG (Directed Acyclic Graph).
+    *   Task 1: Extract from Reddit
+    *   Task 2: Transform Data
+    *   Task 3: Load to DB
+3.  **Deploy together:** Add Airflow to your `docker-compose.yml`.
+
+**Standalone State:** You start your Docker containers. You open `localhost:8080` to see the Airflow UI, schedule the pipeline to run at midnight every day, and watch visual graphs of the data flowing successfully. 
+**Skills Showcased:** Workflow Orchestration, DAG execution, Fault Tolerance, Monitoring.
+
+---
+
+## Phase 5: The "Plug-and-Play" User Interface
+**Goal:** Turn this from a developer script into an end-to-end SAAS-like research tool.
+**Why:** Makes your project incredibly interactive for portfolio reviewers or actual researchers.
+
+**Tasks:**
+1.  **Frontend/API:** Build a simple web interface using **Streamlit** (Python-based dashboard) or a **FastAPI** backend with a simple HTML/JS frontend.
+2.  **Dynamic Configuration:** Instead of a static [config.json](file:///Users/ashutoshchatterjee/Documents/Projects/Reddit%20Projects/data/config.json), the user types keywords directly into the website and clicks "Start Collection". The website submits config to Airflow / the Database, kicking off the pipeline.
+3.  **Analytics Dashboard:** Query the PostgreSQL database directly from the website to show live charts of sentiment, common keywords, and active subreddits.
+
+**Standalone State:** A fully encapsulated tool. A user opens a website, enters research parameters, waits for the pipeline to run in the background, and views real-time interactive dashboards of the social engineering data.
+**Skills Showcased:** Full-Stack Development, API Creation, Data Visualization, End-to-End System Design.
